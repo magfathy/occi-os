@@ -454,8 +454,8 @@ def retrieve_images(context):
     return COMPUTE_API.image_service.detail(context)
 
 
-def retrieve_flavors():
+def retrieve_flavors(context):
     """
     Retrieve list of flavors.
     """
-    return flavors.get_all_flavors()
+    return flavors.get_all_flavors(context)

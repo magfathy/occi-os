@@ -205,7 +205,7 @@ class OCCIApplication(occi_wsgi.Application, wsgi.Application):
         Register the flavors as ResourceTemplates to which the user has access.
         """
         template_schema = 'http://schemas.openstack.org/template/resource#'
-        os_flavours = vm.retrieve_flavors()
+        os_flavours = vm.retrieve_flavors(extras['nova_ctx'])
 
         # delete those which are delete through different API.
         os_lst = [occify_terms(str(item)) for item in os_flavours.keys()]
