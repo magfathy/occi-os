@@ -148,15 +148,18 @@ class StorageLinkBackend(backend.KindBackend):
         context = extras['nova_ctx']
         instance_id = link.source.attributes['occi.core.id']
         volume_id = link.target.attributes['occi.core.id']
-        mount_point = link.attributes['occi.storagelink.deviceid']
+        if 'occi.storagelink.deviceid' in link.attributes:
+                mount_point = link.attributes['occi.storagelink.deviceid']
+        else:
+                mount_point = "/dev/vde"
 
         vm.attach_volume(instance_id, volume_id, mount_point, context)
 
         link.attributes['occi.core.id'] = str(uuid.uuid4())
-        link.attributes['occi.storagelink.deviceid'] = \
-            link.attributes['occi.storagelink.deviceid']
-        link.attributes['occi.storagelink.mountpoint'] = ''
+        link.attributes['occi.storagelink.deviceid'] = mount_point
+        link.attributes['occi.storagelink.mountpoint'] = mount_point
         link.attributes['occi.storagelink.state'] = 'active'
+
 
     def delete(self, link, extras):
         """
