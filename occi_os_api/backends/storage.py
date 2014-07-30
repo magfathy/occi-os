@@ -149,17 +149,30 @@ class StorageLinkBackend(backend.KindBackend):
         instance_id = link.source.attributes['occi.core.id']
         volume_id = link.target.attributes['occi.core.id']
         if 'occi.storagelink.deviceid' in link.attributes:
-                mount_point = link.attributes['occi.storagelink.deviceid']
+            mount_point = link.attributes['occi.storagelink.deviceid']
         else:
-                mount_point = "/dev/vde"
+	    #get the list of linked mount points
+	    mp=[]
+	    for sl in link.source.links:
+	        if 'occi.storagelink.mountpoint' in sl.attributes:
+	            mp.append(sl.attributes['occi.storagelink.mountpoint'])
 
-        vm.attach_volume(instance_id, volume_id, mount_point, context)
+                #generate a mount point who is not already in use
+	        i=100 #Start from d
+	        mount_point="/dev/vd" + chr(i)
+	        while mount_point in mp:
+		    i=i+1
+		    mount_point="/dev/vd" + chr(i)
 
-        link.attributes['occi.core.id'] = str(uuid.uuid4())
-        link.attributes['occi.storagelink.deviceid'] = mount_point
-        link.attributes['occi.storagelink.mountpoint'] = mount_point
-        link.attributes['occi.storagelink.state'] = 'active'
+	#If hostname is set and state is not, this mean that we are requesting a new instance with links, so the
+	#instance does not exist yet
+	if ('occi.compute.hostname' not in link.source.attributes or 'occi.compute.state' in link.source.attributes):
+	        vm.attach_volume(instance_id, volume_id, mount_point, context)
 
+	link.attributes['occi.core.id'] = str(uuid.uuid4())
+	link.attributes['occi.storagelink.deviceid'] = mount_point
+	link.attributes['occi.storagelink.mountpoint'] = mount_point
+	link.attributes['occi.storagelink.state'] = 'active'
 
     def delete(self, link, extras):
         """

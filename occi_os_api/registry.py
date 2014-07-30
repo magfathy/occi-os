@@ -23,8 +23,6 @@ OCCI registry
 #R0201:method could be func.E1002:old style obj,R0914-R0912:# of branches
 #E1121:# positional args.
 #pylint: disable=R0201,E1002,R0914,R0912,E1121
-from decimal import _Log10Memoize
-
 import uuid
 
 from oslo.config import cfg
@@ -325,6 +323,22 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
                                                 extras)
             result.append(link)
 
+        # 4. storage links from the storage (and cache them)
+        stors = storage.get_storage_volumes(context)
+        for item in stors:
+            if item['status'] == 'in-use' and item['instance_uuid'] == identifier:
+                stor = core_model.Resource(infrastructure.STORAGE.location + item['id'], infrastructure.STORAGE, [])
+                stor.attributes['occi.core.id']=item['id']
+                link = core_model.Link(infrastructure.STORAGELINK.location +
+                                   str(uuid.uuid4()),
+                                   infrastructure.STORAGELINK, [], entity,
+                                   stor)
+                link.attributes = { 'occi.storagelink.deviceid' : item['mountpoint'] , 'occi.storagelink.mountpoint': item['mountpoint'], 'occi.storagelink.state': 'active' }
+                link.extras = self.get_extras(extras)
+                entity.links.append(link)
+                result.append(link)
+                self.cache[(link.identifier, context.user_id)] = link
+
         # core.id and cache it!
         entity.attributes['occi.core.id'] = identifier
         entity.extras = self.get_extras(extras)
@@ -354,19 +368,6 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
         iden = infrastructure.STORAGE.location + identifier
         entity = core_model.Resource(iden, infrastructure.STORAGE, [])
         result.append(entity)
-
-        # create links on VM resources
-        if stor['status'] == 'in-use':
-            source = self.get_resource(infrastructure.COMPUTE.location +
-                                       str(stor['instance_uuid']), extras)
-            link = core_model.Link(infrastructure.STORAGELINK.location +
-                                   str(uuid.uuid4()),
-                                   infrastructure.STORAGELINK, [], source,
-                                   entity)
-            link.extras = self.get_extras(extras)
-            source.links.append(link)
-            result.append(link)
-            self.cache[(link.identifier, context.user_id)] = link
 
         # core.id and cache it!
         entity.attributes['occi.core.id'] = identifier

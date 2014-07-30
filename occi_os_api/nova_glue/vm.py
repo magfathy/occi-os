@@ -95,6 +95,12 @@ def create_vm(entity, context):
     if not os_template:
         raise AttributeError('Please provide a valid OS Template.')
 
+    #Parse storage links
+    for link in entity.links:
+        if not 'occi.storagelink.state' in link.attributes:
+            continue
+        block_device_mapping=[{"volume_size": "", "volume_id": link.target.attributes['occi.core.id'], "delete_on_termination": "0", "device_name": link.attributes['occi.storagelink.mountpoint']}]
+
     if resource_template:
         inst_type = flavors.get_flavor_by_flavor_id(resource_template.res_id)
     else:
@@ -171,7 +177,8 @@ def resize_vm(uid, flavor_id, context):
                            **kwargs)
         ready = False
         i = 0
-        while not ready or i < 15:
+        # XXX are 15 secs enough to resize?
+        while not ready and i < 15:
             i += 1
             state = get_vm(uid, context)['vm_state']
             if state == 'resized':
@@ -181,7 +188,7 @@ def resize_vm(uid, flavor_id, context):
         instance = get_vm(uid, context)
         COMPUTE_API.confirm_resize(context, instance)
     except Exception as e:
-        raise AttributeError(e.message)
+        raise AttributeError(str(e))
 
 
 def delete_vm(uid, context):
@@ -282,7 +289,7 @@ def restart_vm(uid, method, context):
 
     if method in ('graceful', 'warm'):
         reboot_type = 'SOFT'
-    elif method is 'cold':
+    elif method == 'cold':
         reboot_type = 'HARD'
     else:
         raise AttributeError('Unknown method.')
@@ -347,7 +354,7 @@ def set_password_for_vm(uid, password, context):
 
 def get_vnc(uid, context):
     """
-    Retrieve VNC console or None is unavailable.
+    Retrieve VNC console or None if unavailable.
 
     uid -- id of the instance
     context -- the os context
@@ -370,8 +377,8 @@ def get_vm(uid, context):
     context -- the os context
     """
     try:
-        instance = COMPUTE_API.get(context, uid)
-    except Exception as e:
+        instance = COMPUTE_API.get(context, uid, want_objects=True)
+    except Exception:
         raise exceptions.HTTPError(404, 'VM not found!')
     return instance
 
@@ -429,7 +436,6 @@ def get_vm_state(uid, context):
 
 # TODO: add comments
 
-
 def retrieve_image(uid, context):
     """
     Return details on an image.
@@ -444,5 +450,5 @@ def retrieve_images(context):
     return COMPUTE_API.image_service.detail(context)
 
 
-def retrieve_flavors():
-    return flavors.get_all_flavors()
+def retrieve_flavors(context):
+    return flavors.get_all_flavors(context)
