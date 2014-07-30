@@ -95,6 +95,12 @@ def create_vm(entity, context):
     if not os_template:
         raise AttributeError('Please provide a valid OS Template.')
 
+    #Parse storage links
+    for link in entity.links:
+        if not 'occi.storagelink.state' in link.attributes:
+            continue
+        block_device_mapping=[{"volume_size": "", "volume_id": link.target.attributes['occi.core.id'], "delete_on_termination": "0", "device_name": link.attributes['occi.storagelink.mountpoint']}]
+
     if resource_template:
         inst_type = flavors.get_flavor_by_flavor_id(resource_template.res_id)
     else:
@@ -429,7 +435,6 @@ def get_vm_state(uid, context):
 # Image management
 
 # TODO: add comments
-
 
 def retrieve_image(uid, context):
     """
