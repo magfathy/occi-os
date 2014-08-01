@@ -159,12 +159,12 @@ class StorageLinkBackend(backend.KindBackend):
                 if 'occi.storagelink.mountpoint' in sl.attributes:
                     mp.append(sl.attributes['occi.storagelink.mountpoint'])
 
-                # generate a mount point who is not already in use
-                i = 100  # Start from d
+            # generate a mount point who is not already in use
+            i = 100  # Start from d
+            mount_point = "/dev/vd" + chr(i)
+            while mount_point in mp:
+                i = i + 1
                 mount_point = "/dev/vd" + chr(i)
-                while mount_point in mp:
-                    i = i + 1
-                    mount_point = "/dev/vd" + chr(i)
 
         # If hostname is set and state is not, this mean that we are requesting
         # a new instance with links, so the instance does not exist yet
