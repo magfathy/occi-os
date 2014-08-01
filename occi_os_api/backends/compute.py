@@ -20,7 +20,7 @@
 The compute resource backend for OpenStack.
 """
 
-#pylint: disable=W0232,R0201
+# pylint: disable=W0232,R0201
 
 from occi_os_api.extensions import os_mixins
 from occi_os_api.extensions import os_addon
@@ -31,6 +31,7 @@ from occi.extensions import infrastructure
 
 
 class ComputeBackend(KindBackend, ActionBackend):
+
     """
     The compute backend.
     """
@@ -160,7 +161,7 @@ class ComputeBackend(KindBackend, ActionBackend):
         elif action == infrastructure.STOP:
             vm.stop_vm(uid, context)
         elif action == infrastructure.RESTART:
-            if not 'method' in attributes:
+            if 'method' not in attributes:
                 raise AttributeError('Please provide a method!')
             method = attributes['method']
             vm.restart_vm(uid, method, context)
