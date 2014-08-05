@@ -20,7 +20,7 @@
 VM related 'glue' :-)
 """
 
-#pylint: disable=R0914,W0142,R0912,R0915
+# pylint: disable=R0914,W0142,R0912,R0915
 
 from nova import compute
 from nova import utils
@@ -95,11 +95,16 @@ def create_vm(entity, context):
     if not os_template:
         raise AttributeError('Please provide a valid OS Template.')
 
-    #Parse storage links
+    # Parse storage links
     for link in entity.links:
-        if not 'occi.storagelink.state' in link.attributes:
+        if 'occi.storagelink.state' not in link.attributes:
             continue
-        block_device_mapping=[{"volume_size": "", "volume_id": link.target.attributes['occi.core.id'], "delete_on_termination": "0", "device_name": link.attributes['occi.storagelink.mountpoint']}]
+        block_device_mapping = [
+            {
+                "volume_size": "",
+                "volume_id": link.target.attributes['occi.core.id'],
+                "delete_on_termination": "0",
+                "device_name": link.attributes['occi.storagelink.mountpoint']}]
 
     if resource_template:
         inst_type = flavors.get_flavor_by_flavor_id(resource_template.res_id)
@@ -435,6 +440,7 @@ def get_vm_state(uid, context):
 # Image management
 
 # TODO: add comments
+
 
 def retrieve_image(uid, context):
     """

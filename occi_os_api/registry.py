@@ -20,9 +20,9 @@
 OCCI registry
 """
 
-#R0201:method could be func.E1002:old style obj,R0914-R0912:# of branches
-#E1121:# positional args.
-#pylint: disable=R0201,E1002,R0914,R0912,E1121
+# R0201:method could be func.E1002:old style obj,R0914-R0912:# of branches
+# E1121:# positional args.
+# pylint: disable=R0201,E1002,R0914,R0912,E1121
 import uuid
 
 from oslo.config import cfg
@@ -42,6 +42,7 @@ CONF = cfg.CONF
 
 
 class OCCIRegistry(occi_registry.NonePersistentRegistry):
+
     """
     Registry for OpenStack.
 
@@ -144,7 +145,7 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
             # I have seen it - need to update or delete if gone in OS!
             # I have already seen it
             cached_item = self.cache[(key, context.user_id)]
-            if not iden in vm_res_ids and cached_item.kind == \
+            if iden not in vm_res_ids and cached_item.kind == \
                     infrastructure.COMPUTE:
                 # it was delete in OS -> remove links, cache + KeyError!
                 # can delete it because it was my item!
@@ -152,7 +153,7 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
                     self.cache.pop((link.identifier, repr(extras)))
                 self.cache.pop((key, repr(extras)))
                 raise KeyError
-            if not iden in stor_res_ids and cached_item.kind == \
+            if iden not in stor_res_ids and cached_item.kind == \
                     infrastructure.STORAGE:
                 # it was delete in OS -> remove from cache + KeyError!
                 # can delete it because it was my item!
@@ -325,14 +326,22 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
         # 4. storage links from the storage (and cache them)
         stors = storage.get_storage_volumes(context)
         for item in stors:
-            if item['status'] == 'in-use' and item['instance_uuid'] == identifier:
-                stor = core_model.Resource(infrastructure.STORAGE.location + item['id'], infrastructure.STORAGE, [])
-                stor.attributes['occi.core.id']=item['id']
+            if item['status'] == 'in-use' and item['instance_uuid'] \
+                    == identifier:
+                stor = core_model.Resource(
+                    infrastructure.STORAGE.location +
+                    item['id'],
+                    infrastructure.STORAGE,
+                    [])
+                stor.attributes['occi.core.id'] = item['id']
                 link = core_model.Link(infrastructure.STORAGELINK.location +
-                                   str(uuid.uuid4()),
-                                   infrastructure.STORAGELINK, [], entity,
-                                   stor)
-                link.attributes = { 'occi.storagelink.deviceid' : item['mountpoint'] , 'occi.storagelink.mountpoint': item['mountpoint'], 'occi.storagelink.state': 'active' }
+                                       str(uuid.uuid4()),
+                                       infrastructure.STORAGELINK, [], entity,
+                                       stor)
+                link.attributes = {
+                    'occi.storagelink.deviceid': item['mountpoint'],
+                    'occi.storagelink.mountpoint': item['mountpoint'],
+                    'occi.storagelink.state': 'active'}
                 link.extras = self.get_extras(extras)
                 entity.links.append(link)
                 result.append(link)

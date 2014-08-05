@@ -20,9 +20,9 @@
 Network resource backend.
 """
 
-#W0613:unused arguments,R0201:mth could be func,R0903:too few pub mthd.
-#W0232:no init
-#pylint: disable=W0613,R0201,R0903,W0232
+# W0613:unused arguments,R0201:mth could be func,R0903:too few pub mthd.
+# W0232:no init
+# pylint: disable=W0613,R0201,R0903,W0232
 
 
 from occi import backend
@@ -31,6 +31,7 @@ from occi_os_api.nova_glue import net
 
 
 class NetworkBackend(backend.KindBackend, backend.ActionBackend):
+
     """
     Backend to handle network resources.
     """
@@ -49,6 +50,7 @@ class NetworkBackend(backend.KindBackend, backend.ActionBackend):
 
 
 class IpNetworkBackend(backend.MixinBackend):
+
     """
     A mixin backend for the IPnetworking.
     """
@@ -61,6 +63,7 @@ class IpNetworkBackend(backend.MixinBackend):
 
 
 class IpNetworkInterfaceBackend(backend.MixinBackend):
+
     """
     A mixin backend for the IpNetworkingInterface (covered by
     NetworkInterfaceBackend).
@@ -70,6 +73,7 @@ class IpNetworkInterfaceBackend(backend.MixinBackend):
 
 
 class NetworkInterfaceBackend(backend.KindBackend):
+
     """
     A backend for network links.
     """
@@ -81,7 +85,7 @@ class NetworkInterfaceBackend(backend.KindBackend):
         if link.target.identifier == '/network/public':
             # public means floating IP in OS!
             # if the os_net_link mixin is avail. a pool must be provided:
-            if not 'org.openstack.network.floating.pool' in link.attributes\
+            if 'org.openstack.network.floating.pool' not in link.attributes\
                     and os_addon.OS_NET_LINK in link.mixins:
                 raise AttributeError('Please specify the pool name when using'
                                      ' this mixin!')
