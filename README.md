@@ -46,7 +46,21 @@ Make sure the API (name from above) is enabled in `nova.conf`:
 	[...]
 	enabled_apis=ec2,occiapi,osapi_compute,osapi_volume,metadata
 	[...]
+
+#### Registering the OCCI endpoint
+
+It is recommended to register the OCCI endpoint service into keystone.
+
+To do so, you need first to create a new service for OCCI, by running
+
+	keystone service-create --name nova --type occi --description 'Nova OCCI Service'
+
+and then register an endpoint for the newly created service via
+
+	keystone endpoint-create --service_id <occi_service_id> --region RegionOne --publicurl http://$HOSTNAME:8787/ --internalurl http://$HOSTNAME:8787/ --adminurl http://$HOSTNAME:8787/
 	
+where the \<occi_service_id\> is the one obtained by the keystone service-create command
+
 #### Hacking the port number
 
 (Optional) You can set the port option via the `nova.conf` configuration
