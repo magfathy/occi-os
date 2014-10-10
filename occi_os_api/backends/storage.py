@@ -45,10 +45,15 @@ class StorageBackend(backend.KindBackend, backend.ActionBackend):
         context = extras['nova_ctx']
         if 'occi.storage.size' not in entity.attributes:
             raise AttributeError('size attribute not found!')
+        size = entity.attributes['occi.storage.size']
 
-        new_volume = storage.create_storage(entity.attributes['occi.storage'
-                                                              '.size'],
-                                            context)
+        name = ''
+        if 'occi.core.title' not in entity.attributes:
+            name = str(uuid.uuid4())
+        else:
+            name = entity.attributes['occi.core.title']
+
+        new_volume = storage.create_storage(size, name, context)
         vol_id = new_volume['id']
 
         # Work around problem that instance is lazy-loaded...
@@ -75,6 +80,7 @@ class StorageBackend(backend.KindBackend, backend.ActionBackend):
 
         volume = storage.get_storage(v_id, extras['nova_ctx'])
 
+        entity.attributes['occi.core.title'] = str(volume['display_name'])
         entity.attributes['occi.storage.size'] = str(float(volume['size']))
 
         # OS volume states:
@@ -162,5 +168,8 @@ class StorageLinkBackend(backend.KindBackend):
         """
         Unlinks the the compute from the storage resource.
         """
+        instance_id = link.source.attributes['occi.core.id']
         volume_id = link.target.attributes['occi.core.id']
-        vm.detach_volume(volume_id, extras['nova_ctx'])
+
+        volume = storage.get_storage(volume_id, extras['nova_ctx'])
+        vm.detach_volume(instance_id, volume, extras['nova_ctx'])

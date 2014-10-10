@@ -1,7 +1,9 @@
 OCCI for OpenStack
 ==================
 
-This is a clone and continuation of https://github.com/dizz/nova - it
+***NOTE: This project will be moving to [stackforge](https://github.com/stackforge/occi-os) ***
+
+This is a clone and continuation of https://github.com/dizz/nova (no longer available) - it
 provides a python egg which can be easily deployed in [OpenStack](http://www
 .openstack.org) and will thereby add the 3rd party [OCCI](http://www.occi-wg
 .org) interface to OpenStack. For usage examples, [see the OpenStack wiki]
@@ -46,6 +48,23 @@ Make sure the API (name from above) is enabled in `nova.conf`:
 	[...]
 	enabled_apis=ec2,occiapi,osapi_compute,osapi_volume,metadata
 	[...]
+
+#### Register service in keystone
+You can register the OCCI service endpoint in Keyston via the following commands. First you need to create the OCCI service via
+
+	$ keystone service-create --name nova --type occi --description 'Nova OCCI Service'
+	+-------------+----------------------------------+
+	|   Property  |              Value               |
+	+-------------+----------------------------------+
+	| description |           OCCI service           |
+	|      id     | 8e6de5d0d7624584bed6bec9bef7c9e0 |
+	|     name    |               nova               |
+	|     type    |               occi               |
+	+-------------+----------------------------------+
+
+from which you get the new service ID and use it to register the OCCI endpoint in Keystone:
+
+	$ keystone endpoint-create --service_id 8e6de5d0d7624584bed6bec9bef7c9e0 --region RegionOne --publicurl http://$HOSTNAME:8787/ --internalurl  http://$HOSTNAME:8787/ --adminurl http://$HOSTNAME:8787/
 	
 #### Hacking the port number
 
