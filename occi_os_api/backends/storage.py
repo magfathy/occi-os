@@ -157,15 +157,16 @@ class StorageLinkBackend(backend.KindBackend):
 
         try:
             registry.get_resource('/compute/%s' % instance_id, extras)
+        except KeyError:
+            # image is not in the registry -> link created with the VM
+            # will be handled elsewhere
+            pass
+        else:
             context = extras['nova_ctx']
             device_id = link.attributes.get('occi.storagelink.deviceid')
             device_name = vm.attach_volume(instance_id, volume_id,
                                            device_id, context)
             link.attributes['occi.storagelink.deviceid'] = device_name
-        except KeyError:
-            # image is not in the registry -> link created with the VM
-            # will be handled elsewhere
-            pass
 
         link.attributes['occi.core.id'] = str(uuid.uuid4())
         # link.attributes['occi.storagelink.mountpoint'] = ''
