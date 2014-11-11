@@ -80,8 +80,19 @@ class OCCIRegistry(occi_registry.NonePersistentRegistry):
                           'project_id': extras['nova_ctx'].project_id}
         return sec_extras
 
-    # The following two are here to deal with the security group mixins
+    def delete_resource(self, key, extras):
+        """
+        Avoid super messing
+        """
+        pass
 
+    def add_resource(self, key, resource, extras):
+        """
+        Avoid super messing
+        """
+        pass
+
+    # The following two are here to deal with the security group mixins
     def delete_mixin(self, mixin, extras):
         """
         Allows for the deletion of user defined mixins.

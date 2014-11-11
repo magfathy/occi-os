@@ -153,8 +153,12 @@ class StorageLinkBackend(backend.KindBackend):
         """
         volume_id = link.target.attributes.get('occi.core.id', '')
         instance_id = link.source.attributes.get('occi.core.id', '')
-        registry = extras['registry']
+        link_id = '_'.join([instance_id, volume_id])
+        link.identifier = infrastructure.STORAGELINK.location + link_id
+        link.attributes['occi.core.id'] = link_id
+        link.attributes['occi.storagelink.state'] = 'active'
 
+        registry = extras['registry']
         try:
             registry.get_resource('/compute/%s' % instance_id, extras)
         except KeyError:
@@ -167,10 +171,6 @@ class StorageLinkBackend(backend.KindBackend):
             device_name = vm.attach_volume(instance_id, volume_id,
                                            device_id, context)
             link.attributes['occi.storagelink.deviceid'] = device_name
-
-        link.attributes['occi.core.id'] = str(uuid.uuid4())
-        # link.attributes['occi.storagelink.mountpoint'] = ''
-        link.attributes['occi.storagelink.state'] = 'active'
 
     def delete(self, link, extras):
         """
