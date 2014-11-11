@@ -52,13 +52,13 @@ Make sure the API (name from above) is enabled in `nova.conf`:
 #### Register service in keystone
 You can register the OCCI service endpoint in Keyston via the following commands. First you need to create the OCCI service via
 
-	$ keystone service-create --name nova --type occi --description 'Nova OCCI Service'
+	$ keystone service-create --name occi_api --type occi --description 'Nova OCCI Service'
 	+-------------+----------------------------------+
 	|   Property  |              Value               |
 	+-------------+----------------------------------+
 	| description |           OCCI service           |
 	|      id     | 8e6de5d0d7624584bed6bec9bef7c9e0 |
-	|     name    |               nova               |
+	|     name    |             occi_api             |
 	|     type    |               occi               |
 	+-------------+----------------------------------+
 
