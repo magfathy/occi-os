@@ -26,6 +26,7 @@ Network resource backend.
 
 
 from occi import backend
+from occi.extensions import infrastructure
 from occi_os_api.extensions import os_addon
 from occi_os_api.nova_glue import net
 
@@ -103,6 +104,9 @@ class NetworkInterfaceBackend(backend.KindBackend):
             link.attributes['occi.networkinterface.address'] = address
             link.attributes['occi.networkinterface.gateway'] = '0.0.0.0'
             link.attributes['occi.networkinterface.allocation'] = 'static'
+            ident = '_'.join([link.source.attributes['occi.core.id'],
+                              address])
+            link.identifier = infrastructure.NETWORKINTERFACE.location + ident
         else:
             raise AttributeError('Currently not supported.')
 
