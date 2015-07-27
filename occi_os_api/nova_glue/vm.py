@@ -27,6 +27,7 @@ from nova import utils
 from nova.compute import task_states
 from nova.compute import vm_states
 from nova.compute import flavors
+from nova.image import glance
 from nova.openstack.common import log
 
 from occi import exceptions
@@ -36,6 +37,7 @@ from occi_os_api.extensions import os_mixins
 from occi_os_api.extensions import os_addon
 
 COMPUTE_API = compute.API()
+IMAGE_API = glance.get_default_image_service()
 
 LOG = log.getLogger(__name__)
 
@@ -458,7 +460,7 @@ def retrieve_image(uid, context):
     Return details on an image.
     """
     try:
-        return COMPUTE_API.image_service.show(context, uid)
+        return IMAGE_API.show(context, uid)
     except Exception as e:
         raise AttributeError(e.message)
 
@@ -467,7 +469,7 @@ def retrieve_images(context):
     """
     Retrieve list of images.
     """
-    return COMPUTE_API.image_service.detail(context)
+    return IMAGE_API.detail(context)
 
 
 def retrieve_flavors(context):
