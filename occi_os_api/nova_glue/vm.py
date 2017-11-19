@@ -48,6 +48,7 @@ def create_vm(entity, context):
     context -- the os context.
     """
     # TODO: needs major overhaul!
+    # TODO:
 
     if 'occi.compute.hostname' in entity.attributes:
         name = entity.attributes['occi.compute.hostname']
@@ -62,6 +63,12 @@ def create_vm(entity, context):
     injected_files = []
     min_count = max_count = 1
     requested_networks = None
+    # TODO: step 1 to integrate with SRIOV neutron deployment.
+    # TODO: create a new port in the given tenant network.
+    # TODO: find the pthon code of this command
+    # TODO: neutron port-create NetID --binding:vnic-type macvtap
+    # TODO: the dict requested_networks will be like that
+    # TODO:  --nic port-id=f09590f9-44bf-40f4-b980-4c6e41178829
     sg_names = []
     availability_zone = None
     config_drive = None
